@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans
+    xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+    xmlns:aop="http://www.springframework.org/schema/aop" 
+    xmlns:tx="http://www.springframework.org/schema/tx"
+    xmlns:jee="http://www.springframework.org/schema/jee"
+    xmlns:ehcache="http://ehcache-spring-annotations.googlecode.com/svn/schema/ehcache-spring"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans 
+    http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+    http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.0.xsd
+    http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee-3.0.xsd
+    http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.0.xsd
+    http://ehcache-spring-annotations.googlecode.com/svn/schema/ehcache-spring http://ehcache-spring-annotations.googlecode.com/svn/schema/ehcache-spring/ehcache-spring-1.2.xsd"
+   	>
+   	
+   	<!-- 
+   	HELP
+   	1.  The client project must have a context/datasource-context.xml file defined
+   	 -->
+   	<import resource="classpath:context/datasource-context.xml"/>
+   	
+	<bean id="springBean" abstract="true" init-method="init" destroy-method="destroy"/>
+ 
+	<bean id="abstractService" abstract="true" parent="springBean">
+		<property name="dao" ref="dao"/>
+		<property name="transactionManager" ref="transactionManager"></property>
+		<property name="velocityEngine" ref="velocityEngine"/>
+	</bean>
+	
+	<bean id="abstractValidator" abstract="true" parent="springBean"/>
+		
+	<bean id="transactionManager" class="org.springframework.orm.hibernate3.HibernateTransactionManager" >
+		<property name="sessionFactory" ref="mySessionFactory"/>
+	</bean>
+
+	<bean id="velocityEngine" class="org.springframework.ui.velocity.VelocityEngineFactoryBean">
+ 
+      <property name="velocityProperties">
+         <value>
+            resource.loader=file
+            class.resource.loader.class=org.apache.velocity.runtime.resource.loader.FileResourceLoader
+            file.resource.loader.path=
+         </value>
+      </property>      
+   </bean>
+
+	<tx:annotation-driven transaction-manager="transactionManager" mode="aspectj"/>
+
+ 
+</beans>
