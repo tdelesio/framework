@@ -4,79 +4,29 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.StringTokenizer;
-
-import org.apache.velocity.app.VelocityEngine;
-import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.TransactionDefinition;
-import org.springframework.transaction.support.TransactionTemplate;
 
 import com.delesio.SpringBean;
-import com.delesio.cache.ICacheProvider;
-import com.delesio.dao.IDao;
 
 public abstract class AbstractService extends SpringBean {
-	protected IDao dao;	
-//	protected ICacheProvider cacheProvider;
-	private VelocityEngine velocityEngine;
-	
-	
+
 	// the transaction manager
-	protected PlatformTransactionManager transactionManager;
+//	protected PlatformTransactionManager transactionManager;
 	
-	// getters and setters
-	public IDao getDao() {
-		return dao;
-	}
-	public void setDao(IDao dao) {
-		this.dao = dao;
-	}
+
 	
-//	public ICacheProvider getCacheProvider() {
-//		return cacheProvider;
+	
+//	public PlatformTransactionManager getTransactionManager() {
+//		return transactionManager;
 //	}
-//	public void setCacheProvider(ICacheProvider cacheProvider) {
-//		this.cacheProvider = cacheProvider;
+//	public void setTransactionManager(PlatformTransactionManager transactionManager) {
+//		this.transactionManager = transactionManager;
 //	}
-//	
-
-	
-	public void setVelocityEngine(VelocityEngine velocityEngine)
-	{
-		this.velocityEngine = velocityEngine;
-	}
-
-	
-	
-
-	public VelocityEngine getVelocityEngine()
-	{
-		return velocityEngine;
-	}
-	
-//extends HibernateDaoSupport{
-/*	public ICacheProvider getCacheProvider() {
-		return cacheProvider;
-	}
-	public void setCacheProvider(ICacheProvider cacheProvider) {
-		this.cacheProvider = cacheProvider;
-	}
-*/
-	
-	public PlatformTransactionManager getTransactionManager() {
-		return transactionManager;
-	}
-	public void setTransactionManager(PlatformTransactionManager transactionManager) {
-		this.transactionManager = transactionManager;
-	}
-		
-	public TransactionTemplate getTransactionTemplate() {
-		  TransactionTemplate transactionTemplate = new TransactionTemplate(transactionManager);
-		  transactionTemplate.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRED); 
-		  return transactionTemplate;
-		 }
+//		
+//	public TransactionTemplate getTransactionTemplate() {
+//		  TransactionTemplate transactionTemplate = new TransactionTemplate(transactionManager);
+//		  transactionTemplate.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRED); 
+//		  return transactionTemplate;
+//		 }
 	
 	public static byte[] getBytesFromFile(File file) throws IOException {
         InputStream is = new FileInputStream(file);
@@ -113,103 +63,20 @@ public abstract class AbstractService extends SpringBean {
         return bytes;
     }
 	
-	public <T> List<T> getBulk(Class<T> clazz, String tokenizedIds)
-	{
-		StringTokenizer stringTokenizer = new StringTokenizer(tokenizedIds, ",");
-		List<T> list = new ArrayList<T>(11);
-		while (stringTokenizer.hasMoreTokens())
-		{
-			String id = stringTokenizer.nextToken();
-			try
-			{
-				T object = dao.loadByPrimaryKey(clazz, id);
-				if (object==null)
-					continue;
-				list.add(object);
-			}
-			catch (Exception exception)
-			{
-				System.out.println(clazz.toString()+" with id "+id+" is possibly corrupt.");
-				exception.printStackTrace();		
-				continue;
-			}
-		}
-		
-		return list;
-	}
 	
-//	public ResourceBundle getEmailResourceBundle(EmailTemplateEnum emailTemplateEnum, Locale locale)
+	
+
+	
+//	protected List<String> tokenize(String taskDelimiter)
 //	{
-//		File file = new File(emailTemplateHomeDirectory);
-//		ClassLoader loader=null;
-//		try
+//		StringTokenizer stringTokenizer = new StringTokenizer(taskDelimiter, ",");	
+//		List<String> ids = new ArrayList<String>();
+//		while (stringTokenizer.hasMoreTokens())
 //		{
-//			URL[] urls = {file.toURI().toURL()};  
-//			loader = new URLClassLoader(urls);
-//		}
-//		catch (MalformedURLException exception)
-//		{
-//			exception.printStackTrace();
-//			return null;
+//			String id = stringTokenizer.nextToken();
+//			ids.add(id);
 //		}
 //		
-//		
-//		ResourceBundle bundle = ResourceBundle.getBundle(emailTemplateEnum.getBundleName(), locale, loader);
-//		
-//		return bundle;
-//		
+//		return ids;
 //	}
-//	
-//	public String getEmailTemplate(EmailTemplateEnum emailTemplateEnum, Locale locale)
-//	{
-//		return emailTemplateHomeDirectory+getEmailResourceBundle(emailTemplateEnum, locale).getString(TEMPLATE);
-//	}
-//	
-//	public String getEmailSubject(EmailTemplateEnum emailTemplateEnum, Locale locale)
-//	{
-//		return getEmailResourceBundle(emailTemplateEnum, locale).getString(SUBJECT);
-//	}
-//	
-//	public String getSubject(EmailTemplateEnum emailTemplateEnum, Locale locale)
-//	{
-//		return getEmailResourceBundle(emailTemplateEnum, locale).getString(SUBJECT);
-//	}
-//	
-//	public String getEmailFromAddress(EmailTemplateEnum emailTemplateEnum, Locale locale)
-//	{
-//		return getEmailResourceBundle(emailTemplateEnum, locale).getString(FROM);
-//	}
-//	
-//	public String getEmailToAddress(EmailTemplateEnum emailTemplateEnum, Locale locale)
-//	{
-//		return getEmailResourceBundle(emailTemplateEnum, locale).getString(TO);
-//	}
-//	
-//	protected Notification buildImmediateEmailNotification(String subject, String sendFromEmail, Locale locale, INotifiable notifiable, String body, String to)
-//	{
-//		Notification notification = new Notification();
-//		notification.setBody(body);
-//		notification.setNotificationTypeOrdinal(NotificationTypeEnum.EMAIL.ordinal());
-//		notification.setPushTypeOrdinal(PushTypeEnum.NONE.ordinal());
-//		notification.setSendTo(to);
-//		notification.setSubject(subject);
-//		notification.setSendFrom(sendFromEmail);
-//		notification.setToSendTime(System.currentTimeMillis());
-//		notification.setINotification(notifiable);
-//		
-//		return notification;
-//	}
-	
-	protected List<String> tokenize(String taskDelimiter)
-	{
-		StringTokenizer stringTokenizer = new StringTokenizer(taskDelimiter, ",");	
-		List<String> ids = new ArrayList<String>();
-		while (stringTokenizer.hasMoreTokens())
-		{
-			String id = stringTokenizer.nextToken();
-			ids.add(id);
-		}
-		
-		return ids;
-	}
 }

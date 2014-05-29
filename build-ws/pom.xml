@@ -8,10 +8,10 @@
 
 
 	<parent>
-		<artifactId>build</artifactId>
+		<artifactId>build-service</artifactId>
 		<groupId>com.delesio</groupId>
-		<version>1.0.0</version>
-		<relativePath>../build/pom.xml</relativePath>
+		<version>1.1.0</version>
+		<relativePath>../build-service/pom.xml</relativePath>
 	</parent>
 
 	<modules>

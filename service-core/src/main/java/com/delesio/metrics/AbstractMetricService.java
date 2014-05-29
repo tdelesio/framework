@@ -27,14 +27,8 @@ import com.delesio.util.TimeHelper;
  * @author Tim Delesio
  * @see {@link CollectTimeMetrics}, {@link MetricDataPoint}, {@link ClientMetric}
  */
-public class MetricService extends AbstractService implements IMetricService {
+public abstract class AbstractMetricService extends AbstractService implements IMetricService {
 	
-	
-	private IMetricDao metricDao;
-	private Ehcache cache;
-	private Ehcache webRequestCache;
-	private int responseThreshold;
-	private boolean captureWebMetrics=false;
 	
 	/**
 	 * There are two methods used to calculate metrics.  There is floating point and normal.  Floating point will calculate an average as data
@@ -43,36 +37,21 @@ public class MetricService extends AbstractService implements IMetricService {
 	 */
 	private final boolean useMovingPointMetricCalculation=false;
 
-	public void setCaptureWebMetrics(boolean captureWebMetrics) {
-		this.captureWebMetrics = captureWebMetrics;
-	}
-
-	public void setMetricDao(IMetricDao metricDao) {
-		this.metricDao = metricDao;
-	}
-
-	public void setCache(Ehcache cache) {
-		this.cache = cache;
-	}
+	
+	public abstract IMetricDao getMetricDao();
+	public abstract IMetricCache getMetricCache();
+	public abstract IWebRequestMetricCache getWebRequestMetricCache();
+	public abstract int getResponseThreshold();
+	public abstract boolean isCaptureWebMetrics();
 
 	public void saveWebRequestMetric(WebRequestMetric webRequestMetric)
 	{
-		Element element = new Element(UUID.randomUUID().getMostSignificantBits(), webRequestMetric);
-		webRequestCache.put(element);
+//		Element element = new Element(UUID.randomUUID().getMostSignificantBits(), webRequestMetric);
+//		webRequestCache.put(element);
+		
+		getWebRequestMetricCache().addToCache(webRequestMetric);
 	}
 	
-	public void setWebRequestCache(Ehcache webRequestCache) {
-		this.webRequestCache = webRequestCache;
-	}
-
-	public void setResponseThreshold(int responseThreshold)
-	{
-		this.responseThreshold = responseThreshold;
-	}
-
-	protected Ehcache getCache() {
-		return cache;
-	}
 	
 	/**
 	 * This retrieves the metric data point from the cache
@@ -81,7 +60,8 @@ public class MetricService extends AbstractService implements IMetricService {
 	 */
 	private MetricDataPoint getDataPointFromCache(UUID uuid)
 	{
-		return (MetricDataPoint) cache.get(uuid).getObjectValue();
+//		return (MetricDataPoint) cache.get(uuid).getObjectValue();
+		return getMetricCache().getMetricDataPoint(uuid);
 	}
 	
 	
@@ -128,7 +108,7 @@ public class MetricService extends AbstractService implements IMetricService {
 		for (UUID uuid : uuids)
 		{
 			//if there is nothing in the cache, don't do anything
-			if (uuid==null||cache == null || cache.get(uuid)==null)
+			if (uuid==null||getMetricCache() == null || getMetricCache().getMetricDataPoint(uuid)==null)
 				continue;
 			
 			//pull out a record
@@ -213,11 +193,11 @@ public class MetricService extends AbstractService implements IMetricService {
 	
 	private List<MetricOutlier> checkForOutlier(List<MetricOutlier> outliers, MetricDataPoint mdp, Metric metric)
 	{
-		if (mdp.getExecutionTime()>=responseThreshold)
+		if (mdp.getExecutionTime()>=getResponseThreshold())
 		{
 			//we have an outlier
 			MetricOutlier metricOutlier = new MetricOutlier();
-			metricOutlier.setThreshold(responseThreshold);
+			metricOutlier.setThreshold(getResponseThreshold());
 			metricOutlier.setExecutionTime(mdp.getExecutionTime());
 			metricOutlier.setMetric(metric);
 			outliers.add(metricOutlier);
@@ -242,7 +222,7 @@ public class MetricService extends AbstractService implements IMetricService {
 		Map<String, Metric> metrics = new HashMap<String, Metric>(); 
 		for (UUID uuid : uuids)
 		{
-			if (uuid==null||cache == null || cache.get(uuid)==null)
+			if (uuid==null||getMetricCache() == null || getMetricCache().getMetricDataPoint(uuid)==null)
 				continue;
 //			mdp = (MetricDataPoint) cache.get(uuid).getObjectValue();
 			mdp = getDataPointFromCache(uuid);
@@ -299,7 +279,7 @@ public class MetricService extends AbstractService implements IMetricService {
 	 */
 	public void flushCache()
 	{
-		List<UUID> elements = cache.getKeys();
+		List<UUID> elements = getMetricCache().getKeys();
 //		logger.info(TimeHelper.getSimpleDateFormat(System.currentTimeMillis())+" : flushing");
 		System.out.println(TimeHelper.getSimpleDateFormat(System.currentTimeMillis())+" : flushing");
 //		Collection<Metric> metrics;
@@ -312,7 +292,7 @@ public class MetricService extends AbstractService implements IMetricService {
 		saveAllMetrics(wrapper.getMetrics());
 		saveAllOutliers(wrapper.getOutliers());
 		
-		if (captureWebMetrics)
+		if (isCaptureWebMetrics())
 		{
 			saveAllWebMetrics();
 		}
@@ -321,22 +301,25 @@ public class MetricService extends AbstractService implements IMetricService {
 	@Transactional
 	public void saveAllWebMetrics()
 	{
-		List<Long> elementsWRC = webRequestCache.getKeys();
+		List<Long> elementsWRC = getWebRequestMetricCache().getKeys();
 		for (Long uuid: elementsWRC)
-		{
-			Element element = webRequestCache.get(uuid);
-			webRequestCache.remove(uuid);
-			if (element==null)
-				continue;
-			WebRequestMetric webRequestMetric = (WebRequestMetric)element.getValue();
-			dao.save(webRequestMetric);
+		{ 
+//			Element element = getWebRequestMetricCache().get(uuid);
+//			webRequestCache.remove(uuid);
+//			if (element==null)
+//				continue;
+//			WebRequestMetric webRequestMetric = (WebRequestMetric)element.getValue();
+//			
+			WebRequestMetric webRequestMetric = getWebRequestMetricCache().getWebRequestMetric(uuid);
+			getMetricDao().createWebRequestMetric(webRequestMetric);
 		}
 	}
 	
 	@Transactional
 	public void saveAllOutliers(List<MetricOutlier> outliers)
 	{
-		dao.saveAllObjects(outliers);
+		for (MetricOutlier outlier : outliers)
+			getMetricDao().createMetricOutlier(outlier);
 	}
 
 	/* (non-Javadoc)
@@ -345,7 +328,10 @@ public class MetricService extends AbstractService implements IMetricService {
 	@Transactional
 	public void saveAllMetrics(Collection<Metric> metrics)
 	{
-		dao.saveAllObjects(metrics);
+		for (Metric metric:metrics)
+		{
+			getMetricDao().createMetric(metric);
+		}
 	}
 	
 	/* (non-Javadoc)
@@ -354,7 +340,7 @@ public class MetricService extends AbstractService implements IMetricService {
 	@Transactional
 	public void saveClientMetric(ClientMetric clientMetric)
 	{
-		dao.save(clientMetric);
+		getMetricDao().createClientMetric(clientMetric);
 	}
 	
 	/* (non-Javadoc)
@@ -363,6 +349,7 @@ public class MetricService extends AbstractService implements IMetricService {
 	@Transactional
 	public void saveBulkClientMetrics(List<ClientMetric> clientMetrics)
 	{
-		dao.saveAllObjects(clientMetrics);
+		for (ClientMetric clientMetric : clientMetrics)
+			getMetricDao().createClientMetric(clientMetric);
 	}
 }

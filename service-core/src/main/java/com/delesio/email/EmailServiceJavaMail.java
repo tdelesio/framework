@@ -5,6 +5,7 @@ import java.util.Date;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.MailException;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -19,6 +20,9 @@ public class EmailServiceJavaMail extends AbstractService implements IEmailServi
 	private String defaultPassword;
 	private int defaultAttempts = 1;	
 
+	@Autowired
+	private IEmailDao emailDao;
+	
 	@Override
 	public void onInit() {
 		super.onInit();
@@ -71,7 +75,7 @@ public class EmailServiceJavaMail extends AbstractService implements IEmailServi
 	 * @param email
 	 */
 	public void saveEmail(final Email email) {
-		dao.save(email);
+		emailDao.createEmail(email);
 	}
 	
 	/**
@@ -155,7 +159,7 @@ public class EmailServiceJavaMail extends AbstractService implements IEmailServi
 			email.setEmailTimeCreated(new Date(System.currentTimeMillis()));
 			email.setFailureMessage(exception != null ? exception.getMessage() : "");
 			// save the unsent email
-			dao.save(email);
+			emailDao.createEmail(email);
 //		}
 	}
 	

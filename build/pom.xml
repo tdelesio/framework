@@ -6,7 +6,7 @@
 	<groupId>com.delesio</groupId>
 	<packaging>pom</packaging>
 	<name>build</name>
-	<version>1.0.0</version>
+	<version>1.1.0</version>
 
 	
 	<properties>
@@ -911,19 +911,19 @@
 <!-- 			<filter>${filter.location}/rm-filter-${rm.environment}.properties</filter> -->
 <!-- 		</filters> -->
 
-		<resources>
-			<resource>
-				<directory>src/main/resources</directory>
-				<filtering>true</filtering>
-			</resource>
-		</resources>
+<!-- 		<resources> -->
+<!-- 			<resource> -->
+<!-- 				<directory>src/main/resources</directory> -->
+<!-- 				<filtering>true</filtering> -->
+<!-- 			</resource> -->
+<!-- 		</resources> -->
 
-		<testResources>
-			<testResource>
-				<directory>src/test/resources</directory>
-				<filtering>true</filtering>
-			</testResource>
-		</testResources>
+<!-- 		<testResources> -->
+<!-- 			<testResource> -->
+<!-- 				<directory>src/test/resources</directory> -->
+<!-- 				<filtering>true</filtering> -->
+<!-- 			</testResource> -->
+<!-- 		</testResources> -->
 
 		<plugins>
 			<plugin>

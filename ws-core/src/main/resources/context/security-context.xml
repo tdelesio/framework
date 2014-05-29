@@ -76,15 +76,15 @@ secured to the ROLE_HF_USER
  
     <bean id="preAuthEntryPoint" class="org.springframework.security.web.authentication.Http403ForbiddenEntryPoint" />
     
-    <bean id="casAuthenticationFilter" class="com.homefellas.cas.client.authentication.CASAuthticationFilter">
-	    <property name="oauthProfileUrl" value="${cas.oauth.profile.url}"/>
-    	<property name="loginURL" value="${login.url}"/>
-    	<property name="userService" ref="userService"/>
-    </bean>
+<!--     <bean id="casAuthenticationFilter" class="com.homefellas.cas.client.authentication.CASAuthticationFilter"> -->
+<!-- 	    <property name="oauthProfileUrl" value="${cas.oauth.profile.url}"/> -->
+<!--     	<property name="loginURL" value="${login.url}"/> -->
+<!--     	<property name="userService" ref="userService"/> -->
+<!--     </bean> -->
     
 	<bean id="anonymousAuthenticationProvider" class="org.springframework.security.authentication.AnonymousAuthenticationProvider">
   		<property name="key" value="hfanonymous"/>
 	</bean>
     
-	<import resource="classpath:com/homefellas/context/security-client-context.xml"/>
+	<import resource="classpath:context/security-client-context.xml"/>
 </beans>

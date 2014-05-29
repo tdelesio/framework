@@ -10,10 +10,9 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 
 import com.delesio.SpringBean;
-import com.delesio.dao.IDao;
 import com.delesio.dao.Persistable;
 
-public class HibernateDao extends SpringBean implements IDao {
+public class HibernateDao extends SpringBean {
 
 	private SessionFactory sessionFactory;
 	
@@ -68,29 +67,31 @@ public class HibernateDao extends SpringBean implements IDao {
 	
 	public <T>T loadByPrimaryKey(Class<T> clazz, long pk)
 	{
-		Query q = getQuery("from "+clazz.getSimpleName()+" modelalias where modelalias.id=?");
-		q.setLong(0, pk);
-		return (T)q.uniqueResult();
+//		Query q = getQuery("from "+clazz.getSimpleName()+" modelalias where modelalias.id=?");
+//		q.setLong(0, pk);
+//		return (T)q.uniqueResult();
+		return (T)getSession().load(clazz, pk);
 	}
 	
 	public <T>T loadByPrimaryKey(Class<T> clazz, String pk)
 	{
-		Query q = getQuery("from "+clazz.getSimpleName()+" modelalias where modelalias.id=?");
-		q.setString(0, pk);
-		return (T)q.uniqueResult();
+//		Query q = getQuery("from "+clazz.getSimpleName()+" modelalias where modelalias.id=?");
+//		q.setString(0, pk);
+//		return (T)q.uniqueResult();
+		return (T)getSession().load(clazz, pk);
 	}
 	
-	@Override
-	public <T>T loadObject(Class<T> entityClass, Serializable primaryKey) {
-//		return (T)getSession().load(entityClass, primaryKey);
-		Query query = getQuery("from "+entityClass.getSimpleName()+" entityClass where entityClass.id=?");
-		if (primaryKey instanceof String)
-			query.setString(0, (String)primaryKey);
-		else
-			query.setLong(0, (Long)primaryKey);
-		return (T)query.uniqueResult();
-			
-	}
+	
+//	public <T>T loadObject(Class<T> entityClass, Serializable primaryKey) {
+////		return (T)getSession().load(entityClass, primaryKey);
+//		Query query = getQuery("from "+entityClass.getSimpleName()+" entityClass where entityClass.id=?");
+//		if (primaryKey instanceof String)
+//			query.setString(0, (String)primaryKey);
+//		else
+//			query.setLong(0, (Long)primaryKey);
+//		return (T)query.uniqueResult();
+//			
+//	}
 
 
 	
@@ -101,7 +102,7 @@ public class HibernateDao extends SpringBean implements IDao {
 	/* (non-Javadoc)
 	 * @see com.homefellas.dao.core.IDao#save(java.lang.Object)
 	 */
-	@Override
+	
 	public <T> Serializable save(T model)
 	{
 		return getSession().save(model);
@@ -112,7 +113,7 @@ public class HibernateDao extends SpringBean implements IDao {
 	/* (non-Javadoc)
 	 * @see com.homefellas.dao.core.IDao#saveOrUpdate(java.lang.Object)
 	 */
-	@Override
+	
 	public <T> void saveOrUpdate(T object)
 	{
 		getSession().saveOrUpdate(object);
@@ -123,7 +124,7 @@ public class HibernateDao extends SpringBean implements IDao {
 	/* (non-Javadoc)
 	 * @see com.homefellas.dao.core.IDao#deleteObject(java.lang.Object)
 	 */
-	@Override
+	
 	public <T> void deleteObject(T object)
 	{
 		getSession().delete(object);
@@ -134,7 +135,7 @@ public class HibernateDao extends SpringBean implements IDao {
 	/* (non-Javadoc)
 	 * @see com.homefellas.dao.core.IDao#updateObject(java.lang.Object)
 	 */
-	@Override
+	
 	public <T> void updateObject(T object)
 	{
 		getSession().update(object);
@@ -145,27 +146,27 @@ public class HibernateDao extends SpringBean implements IDao {
 	/* (non-Javadoc)
 	 * @see com.homefellas.dao.core.IDao#merge(java.lang.Object)
 	 */
-	@Override
+	
 	public <T> void merge(T object)
 	{
 		getSession().merge(object);
 	}
 	
 
-	@Override
+	
 	public void flush() {
 		getSession().flush();
 		
 	}
 
-	@Override
+	
 	public <T> List<T> loadAllObjects(Class<T> entityClass) {
 		Query query = getQuery("from "+entityClass.getName());
 		return query.list();
 				
 	}
 
-	@Override
+	
 	public void persist(Object object) {
 		getSession().persist(object);
 	}
@@ -175,7 +176,7 @@ public class HibernateDao extends SpringBean implements IDao {
 	/* (non-Javadoc)
 	 * @see com.homefellas.dao.core.IDao#saveAllObjects(java.util.Collection)
 	 */
-	@Override
+	
 	public <T> void saveAllObjects(Collection<T> objects)
 	{
 		for(Iterator<T> it = objects.iterator(); it.hasNext();) 
@@ -189,7 +190,7 @@ public class HibernateDao extends SpringBean implements IDao {
 	/* (non-Javadoc)
 	 * @see com.homefellas.dao.core.IDao#deleteAllObjects(java.util.Collection)
 	 */
-	@Override
+	
 	public <T> void deleteAllObjects(Collection<T> objects)
 	{
 		for(Iterator<T> it = objects.iterator(); it.hasNext();) 
@@ -200,7 +201,7 @@ public class HibernateDao extends SpringBean implements IDao {
 
 
 
-	@Override
+	
 	public <T> T loadByPrimaryKey(Class<T> clazz, Serializable pk)
 	{
 		if (pk instanceof String)

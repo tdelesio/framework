@@ -23,9 +23,7 @@
 	<bean id="springBean" abstract="true" init-method="init" destroy-method="destroy"/>
  
 	<bean id="abstractService" abstract="true" parent="springBean">
-		<property name="dao" ref="dao"/>
-		<property name="transactionManager" ref="transactionManager"></property>
-		<property name="velocityEngine" ref="velocityEngine"/>
+		
 	</bean>
 	
 	<bean id="abstractValidator" abstract="true" parent="springBean"/>
@@ -34,16 +32,16 @@
 		<property name="sessionFactory" ref="mySessionFactory"/>
 	</bean>
 
-	<bean id="velocityEngine" class="org.springframework.ui.velocity.VelocityEngineFactoryBean">
+<!-- 	<bean id="velocityEngine" class="org.springframework.ui.velocity.VelocityEngineFactoryBean"> -->
  
-      <property name="velocityProperties">
-         <value>
-            resource.loader=file
-            class.resource.loader.class=org.apache.velocity.runtime.resource.loader.FileResourceLoader
-            file.resource.loader.path=
-         </value>
-      </property>      
-   </bean>
+<!--       <property name="velocityProperties"> -->
+<!--          <value> -->
+<!--             resource.loader=file -->
+<!--             class.resource.loader.class=org.apache.velocity.runtime.resource.loader.FileResourceLoader -->
+<!--             file.resource.loader.path= -->
+<!--          </value> -->
+<!--       </property>       -->
+<!--    </bean> -->
 
 	<tx:annotation-driven transaction-manager="transactionManager" mode="aspectj"/>
 

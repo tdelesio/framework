@@ -1,5 +1,6 @@
 package com.delesio;
 
+import org.junit.Before;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,8 +15,18 @@ import org.springframework.test.context.transaction.TransactionConfiguration;
 //@TestExecutionListeners({ CassandraUnitTestExecutionListener.class })
 //@CassandraDataSet(value = { "simple.cql" })
 //@EmbeddedCassandra
-public abstract class AbstractTest extends AbstractTransactionalJUnit4SpringContextTests
+public abstract class AbstractTest //extends AbstractTransactionalJUnit4SpringContextTests
 {
 
 	protected final Logger logger = LoggerFactory.getLogger(getClass());
+	
+	protected abstract void createDatabaseDefaults();
+	protected abstract void initializeDataSource();
+	
+	@Before
+	public void setupDatasource()
+	{
+		initializeDataSource();
+		createDatabaseDefaults();
+	}
 }

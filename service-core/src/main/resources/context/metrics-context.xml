@@ -51,7 +51,7 @@
 	
 		
 
-		<bean id="metricService" class="com.homefellas.metrics.MetricService" parent="abstractService">
+		<bean id="abstractMetricService" parent="abstractService">
 			<property name="metricDao" ref="metricDao"/>
 			<property name="cache" ref="metricCache"/>
 			<property name="webRequestCache" ref="webRequestCache"/>
